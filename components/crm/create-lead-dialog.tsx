@@ -7,6 +7,7 @@ import { z } from "zod"
 import { createLead } from "@/actions/lead-actions"
 import { getWorkspaceMembers } from "@/actions/member-actions"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 import {
   Dialog,
   DialogContent,
@@ -51,7 +52,7 @@ type LeadFormValues = z.infer<typeof LeadSchema>
 export function CreateLeadDialog() {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast()
   const [members, setMembers] = useState<any[]>([])
   const router = useRouter()
 
@@ -79,20 +80,30 @@ export function CreateLeadDialog() {
   }, [open])
 
   const onSubmit = async (data: LeadFormValues) => {
-    setIsLoading(true)
-    setError(null)
-    
     try {
       const result = await createLead(data)
       if (result?.error) {
-        setError(result.error)
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error,
+        })
       } else {
+        toast({
+          variant: "success",
+          title: "Success",
+          description: result.success,
+        })
         setOpen(false)
         form.reset()
         router.refresh()
       }
     } catch (err) {
-      setError("An unexpected error occurred")
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred",
+      })
     } finally {
       setIsLoading(false)
     }
@@ -115,11 +126,6 @@ export function CreateLeadDialog() {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            {error && (
-              <div className="p-3 text-sm font-medium text-rose-500 bg-rose-500/10 rounded-lg border border-rose-500/20">
-                {error}
-              </div>
-            )}
             
             <div className="grid grid-cols-2 gap-4">
               <FormField

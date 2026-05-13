@@ -1,0 +1,15 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/auth/[...nextauth]/route": "/api/auth/[...nextauth]",
+  "/page": "/",
+  "/(auth)/signup/page": "/signup",
+  "/(auth)/login/page": "/login",
+  "/(dashboard)/crm/page": "/crm",
+  "/(dashboard)/projects/[id]/page": "/projects/[id]",
+  "/(dashboard)/projects/page": "/projects",
+  "/(dashboard)/settings/profile/page": "/settings/profile",
+  "/(dashboard)/dashboard/page": "/dashboard",
+  "/(dashboard)/tasks/page": "/tasks",
+  "/(dashboard)/settings/page": "/settings",
+  "/(dashboard)/team/page": "/team"
+}

@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { inviteMember } from "@/actions/member-actions"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 import {
   Dialog,
   DialogContent,
@@ -44,7 +45,7 @@ type InviteFormValues = z.infer<typeof InviteSchema>
 export function InviteMemberDialog() {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast()
   const router = useRouter()
 
   const form = useForm<InviteFormValues>({
@@ -56,20 +57,30 @@ export function InviteMemberDialog() {
   })
 
   const onSubmit = async (data: InviteFormValues) => {
-    setIsLoading(true)
-    setError(null)
-    
     try {
       const result = await inviteMember(data.email, data.role)
       if (result?.error) {
-        setError(result.error)
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error,
+        })
       } else {
+        toast({
+          variant: "success",
+          title: "Success",
+          description: result.success,
+        })
         setOpen(false)
         form.reset()
         router.refresh()
       }
     } catch (err) {
-      setError("An unexpected error occurred")
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred",
+      })
     } finally {
       setIsLoading(false)
     }
@@ -92,11 +103,6 @@ export function InviteMemberDialog() {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            {error && (
-              <div className="p-3 text-sm font-medium text-rose-500 bg-rose-500/10 rounded-lg border border-rose-500/20">
-                {error}
-              </div>
-            )}
             
             <FormField
               control={form.control}

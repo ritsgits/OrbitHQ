@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { createProject } from "@/actions/project-actions"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 import {
   Dialog,
   DialogContent,
@@ -38,7 +39,6 @@ import { Loader2, Plus } from "lucide-react"
 const ProjectSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   description: z.string().optional(),
-  status: z.enum(["TODO", "IN_PROGRESS", "COMPLETED"]).default("TODO"),
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]).default("MEDIUM"),
   dueDate: z.string().optional(),
 })
@@ -48,7 +48,7 @@ type ProjectFormValues = z.infer<typeof ProjectSchema>
 export function CreateProjectDialog() {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast()
   const router = useRouter()
 
   const form = useForm<ProjectFormValues>({
@@ -56,27 +56,37 @@ export function CreateProjectDialog() {
     defaultValues: {
       name: "",
       description: "",
-      status: "TODO",
       priority: "MEDIUM",
       dueDate: "",
     },
   })
 
   const onSubmit = async (data: ProjectFormValues) => {
-    setIsLoading(true)
-    setError(null)
-    
     try {
+      setIsLoading(true)
       const result = await createProject(data)
       if (result?.error) {
-        setError(result.error)
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error,
+        })
       } else {
+        toast({
+          variant: "success",
+          title: "Success",
+          description: result.success,
+        })
         setOpen(false)
         form.reset()
         router.refresh()
       }
     } catch (err) {
-      setError("An unexpected error occurred")
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred",
+      })
     } finally {
       setIsLoading(false)
     }
@@ -85,7 +95,7 @@ export function CreateProjectDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
+        <Button className="gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20">
           <Plus className="h-4 w-4" />
           Create Project
         </Button>
@@ -99,11 +109,6 @@ export function CreateProjectDialog() {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            {error && (
-              <div className="p-3 text-sm font-medium text-rose-500 bg-rose-500/10 rounded-lg border border-rose-500/20">
-                {error}
-              </div>
-            )}
             <FormField
               control={form.control}
               name="name"
@@ -111,7 +116,7 @@ export function CreateProjectDialog() {
                 <FormItem>
                   <FormLabel>Project Name</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Website Redesign" disabled={isLoading} />
+                    <Input {...field} placeholder="Website Redesign" disabled={isLoading} className="rounded-xl border-muted-foreground/20" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -124,13 +129,14 @@ export function CreateProjectDialog() {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea {...field} placeholder="Describe the project..." disabled={isLoading} />
+                    <Textarea {...field} placeholder="Describe the project..." disabled={isLoading} className="rounded-xl border-muted-foreground/20 min-h-[100px]" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
+            
+            <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="priority"
@@ -139,7 +145,7 @@ export function CreateProjectDialog() {
                     <FormLabel>Priority</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="rounded-xl border-muted-foreground/20">
                           <SelectValue placeholder="Select priority" />
                         </SelectTrigger>
                       </FormControl>
@@ -153,24 +159,26 @@ export function CreateProjectDialog() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="dueDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Due Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} disabled={isLoading} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
-            <DialogFooter>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+
+            <FormField
+              control={form.control}
+              name="dueDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Due Date</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} disabled={isLoading} className="rounded-xl border-muted-foreground/20" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="pt-4">
+              <Button type="submit" className="w-full rounded-xl py-6 font-bold tracking-wide" disabled={isLoading}>
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Save Project
+                Create Project
               </Button>
             </DialogFooter>
           </form>

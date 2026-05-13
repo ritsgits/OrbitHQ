@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
 import { auth } from "@/auth"
 import { UserAccountNav } from "@/components/user-account-nav"
+import { NotificationCenter } from "@/components/notification-center"
 
 export const Navbar = async () => {
   const session = await auth();
@@ -15,14 +16,11 @@ export const Navbar = async () => {
           <input
             type="search"
             placeholder="Search anything..."
-            className="w-full bg-background border rounded-md pl-8 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full bg-muted/50 border rounded-full pl-8 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-colors hover:bg-muted"
           />
         </div>
         <ModeToggle />
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />
-        </Button>
+        <NotificationCenter />
         {session?.user && <UserAccountNav user={session.user} />}
       </div>
     </div>

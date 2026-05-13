@@ -70,7 +70,7 @@ export async function inviteMember(email: string, role: "ADMIN" | "MEMBER") {
     });
 
     revalidatePath("/team");
-    return { success: true };
+    return { success: "Member invited successfully" };
   } catch (error: any) {
     return { error: error.message || "Failed to invite member" };
   }

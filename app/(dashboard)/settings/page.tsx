@@ -1,7 +1,25 @@
-import { Button } from "@/components/ui/button"
+import { auth } from "@/auth";
+import { ProfileSettingsForm } from "@/components/settings/profile-settings-form";
+import WorkspaceMember from "@/models/WorkspaceMember";
+import connectDB from "@/lib/db";
+import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  await connectDB();
+  const membership = await WorkspaceMember.findOne({ userId: session.user.id });
+  
+  const userData = {
+    ...session.user,
+    workspaceRole: membership?.role || "MEMBER",
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -12,23 +30,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
-            <CardDescription>Update your personal details and how others see you.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-2">
-              <label className="text-sm font-medium">Display Name</label>
-              <input className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50" defaultValue="Alex Rivers" />
-            </div>
-            <div className="grid gap-2">
-              <label className="text-sm font-medium">Email Address</label>
-              <input className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50" defaultValue="alex@orbithq.com" disabled />
-            </div>
-            <Button>Save Changes</Button>
-          </CardContent>
-        </Card>
+        <ProfileSettingsForm user={userData} />
 
         <Card>
           <CardHeader>

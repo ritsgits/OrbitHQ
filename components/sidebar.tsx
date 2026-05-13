@@ -84,12 +84,12 @@ export const Sidebar = () => {
               key={route.href}
               href={route.href}
               className={cn(
-                "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-lg transition",
-                pathname === route.href ? "bg-accent text-accent-foreground" : "text-muted-foreground",
+                "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer rounded-lg transition-all duration-200 hover:bg-primary/10 hover:text-primary",
+                pathname === route.href ? "bg-primary/10 text-primary" : "text-muted-foreground",
               )}
             >
               <div className="flex items-center flex-1">
-                <route.icon className={cn("h-5 w-5 mr-3", route.color)} />
+                <route.icon className={cn("h-5 w-5 mr-3 transition-colors", route.color)} />
                 {!isCollapsed && <span>{route.label}</span>}
               </div>
             </Link>

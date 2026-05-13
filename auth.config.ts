@@ -28,10 +28,14 @@ export const authConfig = {
       }
       return true;
     },
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = (user as any).role;
         token.id = user.id;
+        token.name = user.name;
+      }
+      if (trigger === "update" && session?.name) {
+        token.name = session.name;
       }
       return token;
     },
@@ -39,6 +43,7 @@ export const authConfig = {
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
+        session.user.name = token.name as string;
       }
       return session;
     },

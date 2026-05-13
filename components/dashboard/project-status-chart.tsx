@@ -10,7 +10,7 @@ import {
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-const COLORS = ["hsl(var(--muted))", "hsl(var(--primary))", "hsl(var(--success))"];
+const COLORS = ["hsl(var(--muted-foreground))", "hsl(var(--primary))", "hsl(var(--chart-2))"];
 
 export function ProjectStatusChart({ data }: { data: any[] }) {
   return (
@@ -37,10 +37,12 @@ export function ProjectStatusChart({ data }: { data: any[] }) {
               </Pie>
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: "hsl(var(--background))", 
+                  backgroundColor: "hsl(var(--popover))", 
                   borderColor: "hsl(var(--border))",
-                  borderRadius: "8px"
+                  borderRadius: "12px",
+                  boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)"
                 }}
+                itemStyle={{ color: "hsl(var(--foreground))" }}
               />
               <Legend verticalAlign="bottom" height={36}/>
             </PieChart>

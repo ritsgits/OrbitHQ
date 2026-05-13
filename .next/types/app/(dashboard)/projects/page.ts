@@ -1,4 +1,4 @@
-// File: C:\Users\rites\OneDrive\Desktop\Projects\OrbitHQ\app\(dashboard)\projects\page.tsx
+// File: G:\OrbitHQ\app\(dashboard)\projects\page.tsx
 import * as entry from '../../../../../app/(dashboard)/projects/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

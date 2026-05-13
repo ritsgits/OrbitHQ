@@ -47,13 +47,13 @@ export async function createLead(data: z.infer<typeof LeadSchema>) {
       workspaceId: workspaceId.toString(),
       userId,
       actionType: "CREATE",
-      entityType: "TASK", // Reusing task as placeholder or I should have added CRM to enum?
+      entityType: "LEAD",
       entityId: lead._id.toString(),
       metadata: { name: lead.name, company: lead.company }
     });
 
     revalidatePath("/crm");
-    return { success: true, data: JSON.parse(JSON.stringify(lead)) };
+    return { success: "Lead created successfully", data: JSON.parse(JSON.stringify(lead)) };
   } catch (error: any) {
     return { error: error.message || "Failed to create lead" };
   }
@@ -87,7 +87,7 @@ export async function deleteLead(id: string) {
     });
 
     revalidatePath("/crm");
-    return { success: true };
+    return { success: "Lead deleted successfully" };
   } catch (error: any) {
     return { error: error.message || "Failed to delete lead" };
   }
@@ -109,13 +109,13 @@ export async function updateLeadStatus(id: string, status: string) {
       workspaceId: workspaceId.toString(),
       userId,
       actionType: "STATUS_CHANGE",
-      entityType: "TASK",
+      entityType: "LEAD",
       entityId: id,
       metadata: { name: lead.name, status }
     });
 
     revalidatePath("/crm");
-    return { success: true };
+    return { success: "Status updated successfully" };
   } catch (error: any) {
     return { error: error.message || "Failed to update lead status" };
   }

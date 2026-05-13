@@ -25,7 +25,7 @@ export default async function DashboardPage() {
   const stats = statsRes.stats;
   const recentActivities = statsRes.recentActivities;
   const statsError = statsRes.error;
-  const { taskTrends, projectDistribution, workloadData, error: chartError } = chartRes;
+  const { taskTrends, projectDistribution, workloadData, productivity, error: chartError } = chartRes;
 
   if (statsError || chartError) {
     return (
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
-        <TaskTrendChart data={taskTrends || []} />
+        <TaskTrendChart data={taskTrends || []} productivity={productivity} />
         <ProjectStatusChart data={projectDistribution || []} />
       </div>
 

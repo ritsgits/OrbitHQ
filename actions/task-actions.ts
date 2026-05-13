@@ -18,20 +18,22 @@ const TaskSchema = z.object({
   dueDate: z.string().optional().nullable(),
 });
 
-async function checkTaskPermissions() {
+import { cache } from "react";
+
+const checkTaskPermissions = cache(async () => {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   await connectDB();
-  const membership = await WorkspaceMember.findOne({ userId: session.user.id });
+  const membership = await WorkspaceMember.findOne({ userId: session.user.id }).lean();
   if (!membership) throw new Error("No workspace membership found");
 
   return { 
     userId: session.user.id, 
-    workspaceId: membership.workspaceId,
+    workspaceId: (membership.workspaceId as any).toString(),
     role: membership.role
   };
-}
+});
 
 export async function createTask(data: z.infer<typeof TaskSchema>) {
   try {
@@ -47,6 +49,7 @@ export async function createTask(data: z.infer<typeof TaskSchema>) {
 
     revalidatePath("/tasks");
     revalidatePath("/dashboard");
+    revalidatePath("/projects");
     revalidatePath(`/projects/${data.projectId}`);
 
     await logActivity({
@@ -55,10 +58,10 @@ export async function createTask(data: z.infer<typeof TaskSchema>) {
       actionType: "CREATE",
       entityType: "TASK",
       entityId: task._id.toString(),
-      metadata: { title: task.title }
+      metadata: { title: task.title, projectId: task.projectId.toString() }
     });
 
-    return { success: true, data: JSON.parse(JSON.stringify(task)) };
+    return { success: "Task created successfully", data: JSON.parse(JSON.stringify(task)) };
   } catch (error: any) {
     return { error: error.message || "Failed to create task" };
   }
@@ -92,6 +95,7 @@ export async function updateTask(id: string, data: Partial<z.infer<typeof TaskSc
 
     revalidatePath("/tasks");
     revalidatePath("/dashboard");
+    revalidatePath("/projects");
     revalidatePath(`/projects/${task.projectId}`);
 
     await logActivity({
@@ -100,10 +104,10 @@ export async function updateTask(id: string, data: Partial<z.infer<typeof TaskSc
       actionType: "UPDATE",
       entityType: "TASK",
       entityId: id,
-      metadata: { title: updatedTask.title }
+      metadata: { title: updatedTask.title, projectId: updatedTask.projectId.toString() }
     });
 
-    return { success: true, data: JSON.parse(JSON.stringify(updatedTask)) };
+    return { success: "Task updated successfully", data: JSON.parse(JSON.stringify(updatedTask)) };
   } catch (error: any) {
     return { error: error.message || "Failed to update task" };
   }
@@ -119,6 +123,7 @@ export async function deleteTask(id: string) {
 
     revalidatePath("/tasks");
     revalidatePath("/dashboard");
+    revalidatePath("/projects");
     revalidatePath(`/projects/${task.projectId}`);
 
     const session = await auth();
@@ -131,7 +136,7 @@ export async function deleteTask(id: string) {
       metadata: { title: task.title }
     });
 
-    return { success: true };
+    return { success: "Task deleted successfully" };
   } catch (error: any) {
     return { error: error.message || "Failed to delete task" };
   }
@@ -143,7 +148,7 @@ export async function getTasks(projectId?: string) {
     const query: any = { workspaceId };
     if (projectId) query.projectId = projectId;
     
-    const tasks = await Task.find(query).sort({ createdAt: -1 });
+    const tasks = await Task.find(query).sort({ createdAt: -1 }).populate("assignedTo", "name email image").lean();
     return { data: JSON.parse(JSON.stringify(tasks)) };
   } catch (error: any) {
     return { error: error.message || "Failed to fetch tasks" };
@@ -169,6 +174,7 @@ export async function updateTaskStatus(id: string, status: "TODO" | "IN_PROGRESS
 
     revalidatePath("/tasks");
     revalidatePath("/dashboard");
+    revalidatePath("/projects");
     revalidatePath(`/projects/${task.projectId}`);
 
     await logActivity({
@@ -177,10 +183,10 @@ export async function updateTaskStatus(id: string, status: "TODO" | "IN_PROGRESS
       actionType: "STATUS_CHANGE",
       entityType: "TASK",
       entityId: id,
-      metadata: { title: task.title, status }
+      metadata: { title: task.title, status, projectId: task.projectId.toString() }
     });
 
-    return { success: true };
+    return { success: "Status updated successfully" };
   } catch (error: any) {
     return { error: error.message || "Failed to update task status" };
   }

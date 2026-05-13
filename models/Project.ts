@@ -5,7 +5,6 @@ export interface IProject extends Document {
   description?: string;
   workspaceId: mongoose.Types.ObjectId;
   createdBy: mongoose.Types.ObjectId;
-  status: 'TODO' | 'IN_PROGRESS' | 'COMPLETED';
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
   dueDate?: Date;
   createdAt: Date;
@@ -18,11 +17,6 @@ const ProjectSchema = new Schema<IProject>(
     description: { type: String },
     workspaceId: { type: Schema.Types.ObjectId, ref: 'Workspace', required: true, index: true },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    status: { 
-      type: String, 
-      enum: ['TODO', 'IN_PROGRESS', 'COMPLETED'], 
-      default: 'TODO' 
-    },
     priority: { 
       type: String, 
       enum: ['LOW', 'MEDIUM', 'HIGH'], 
