@@ -4,6 +4,8 @@ import { PasswordSettingsForm } from "@/components/settings/password-settings-fo
 import WorkspaceMember from "@/models/WorkspaceMember";
 import connectDB from "@/lib/db";
 import { redirect } from "next/navigation";
+import mongoose from "mongoose";
+import { resolveUserId } from "@/lib/auth";
 
 export default async function ProfileSettingsPage() {
   const session = await auth();
@@ -11,8 +13,15 @@ export default async function ProfileSettingsPage() {
     redirect("/login");
   }
 
+  const userIdStr = await resolveUserId(session);
+  if (!userIdStr) {
+    redirect("/login");
+  }
+
   await connectDB();
-  const membership = await WorkspaceMember.findOne({ userId: session.user.id });
+  const membership = await WorkspaceMember.findOne({ 
+    userId: new mongoose.Types.ObjectId(userIdStr) 
+  });
   
   const userData = {
     ...session.user,

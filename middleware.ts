@@ -39,12 +39,6 @@ export default auth((req) => {
       return Response.redirect(new URL(`/login?callbackUrl=${encodedCallbackUrl}`, nextUrl));
     }
   }
-
-  if (isAuthRoute) {
-    if (isLoggedIn) {
-      return Response.redirect(new URL("/dashboard", nextUrl));
-    }
-  }
 });
 
 export const config = {

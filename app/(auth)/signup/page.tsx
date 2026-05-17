@@ -8,19 +8,6 @@ interface PageProps {
 }
 
 export default async function SignupPage({ searchParams }: PageProps) {
-  const session = await auth();
-
-  if (session) {
-    const resolvedSearchParams = await searchParams;
-    const callbackUrl = resolvedSearchParams?.callbackUrl;
-
-    if (typeof callbackUrl === "string" && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//")) {
-      redirect(callbackUrl);
-    } else {
-      redirect("/dashboard");
-    }
-  }
-
   return (
     <div className="flex flex-col space-y-6 w-full max-w-lg mx-auto">
       <div className="flex flex-col items-center text-center space-y-2">

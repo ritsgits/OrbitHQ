@@ -6,17 +6,19 @@ import WorkspaceMember from "@/models/WorkspaceMember";
 import User from "@/models/User";
 import { logActivity } from "@/lib/activity";
 import mongoose from "mongoose";
+import { resolveUserId } from "@/lib/auth";
 
 import { revalidatePath } from "next/cache";
 
 export async function getWorkspaceMembers() {
   try {
     const session = await auth();
-    if (!session?.user?.id) throw new Error("Unauthorized");
+    const userIdStr = await resolveUserId(session);
+    if (!userIdStr) throw new Error("Unauthorized");
 
     await connectDB();
     const currentMember = await WorkspaceMember.findOne({ 
-      userId: new mongoose.Types.ObjectId(session.user.id) 
+      userId: new mongoose.Types.ObjectId(userIdStr) 
     });
     if (!currentMember) throw new Error("No workspace membership found");
 
@@ -33,11 +35,12 @@ export async function getWorkspaceMembers() {
 export async function inviteMember(email: string, role: "ADMIN" | "MEMBER") {
   try {
     const session = await auth();
-    if (!session?.user?.id) throw new Error("Unauthorized");
+    const userIdStr = await resolveUserId(session);
+    if (!userIdStr) throw new Error("Unauthorized");
 
     await connectDB();
     const currentMember = await WorkspaceMember.findOne({ 
-      userId: new mongoose.Types.ObjectId(session.user.id) 
+      userId: new mongoose.Types.ObjectId(userIdStr) 
     });
     if (!currentMember) throw new Error("No workspace membership found");
 
@@ -67,7 +70,7 @@ export async function inviteMember(email: string, role: "ADMIN" | "MEMBER") {
 
     await logActivity({
       workspaceId: currentMember.workspaceId.toString(),
-      userId: session.user.id as string,
+      userId: userIdStr,
       actionType: "INVITE",
       entityType: "MEMBER",
       entityId: userToInvite._id.toString(),

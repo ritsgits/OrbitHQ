@@ -6,16 +6,21 @@ import ActivityLog from "@/models/ActivityLog";
 import WorkspaceMember from "@/models/WorkspaceMember";
 import Task from "@/models/Task";
 import User from "@/models/User"; // Ensure User model is loaded for population
+import mongoose from "mongoose";
+import { resolveUserId } from "@/lib/auth";
 
 export async function getRecentActivityAction() {
   try {
     const session = await auth();
-    if (!session?.user?.id) return { error: "Unauthorized" };
+    const userIdStr = await resolveUserId(session);
+    if (!userIdStr) return { error: "Unauthorized" };
 
     await connectDB();
     
     // 1. Get user's primary workspace
-    const membership = await WorkspaceMember.findOne({ userId: session.user.id });
+    const membership = await WorkspaceMember.findOne({ 
+      userId: new mongoose.Types.ObjectId(userIdStr) 
+    });
     if (!membership) return { activities: [] };
 
     // 2. Fetch latest 5 activities

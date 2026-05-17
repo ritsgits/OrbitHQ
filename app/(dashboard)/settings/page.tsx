@@ -5,6 +5,8 @@ import connectDB from "@/lib/db";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import mongoose from "mongoose";
+import { resolveUserId } from "@/lib/auth";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -12,8 +14,15 @@ export default async function SettingsPage() {
     redirect("/login");
   }
 
+  const userIdStr = await resolveUserId(session);
+  if (!userIdStr) {
+    redirect("/login");
+  }
+
   await connectDB();
-  const membership = await WorkspaceMember.findOne({ userId: session.user.id });
+  const membership = await WorkspaceMember.findOne({ 
+    userId: new mongoose.Types.ObjectId(userIdStr) 
+  });
   
   const userData = {
     ...session.user,

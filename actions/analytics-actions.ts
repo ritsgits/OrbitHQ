@@ -12,14 +12,16 @@ import { getProjectDerivedStatus } from "@/utils/project-helpers";
 import { cache } from "react";
 
 import mongoose from "mongoose";
+import { resolveUserId } from "@/lib/auth";
 
 const getWorkspaceId = cache(async () => {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const userIdStr = await resolveUserId(session);
+  if (!userIdStr) throw new Error("Unauthorized");
   
   await connectDB();
   const membership = await WorkspaceMember.findOne({ 
-    userId: new mongoose.Types.ObjectId(session.user.id) 
+    userId: new mongoose.Types.ObjectId(userIdStr) 
   }).lean();
   if (!membership) throw new Error("No workspace membership found");
   
