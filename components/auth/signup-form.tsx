@@ -39,10 +39,15 @@ export function SignupForm() {
       if (result?.error) {
         setError(result.error)
         setIsLoading(false)
+      } else if (result?.success) {
+        // Force a full browser refresh to ensure session cookies are recognized on production Vercel
+        window.location.href = "/dashboard"
+      } else {
+        window.location.href = "/dashboard"
       }
-      // If no error, we expect a redirect to happen shortly
     } catch (err) {
       console.error("Signup component error:", err)
+      setError("An unexpected error occurred. Please try again.")
       setIsLoading(false)
     }
   }

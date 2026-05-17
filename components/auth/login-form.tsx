@@ -37,13 +37,17 @@ export function LoginForm() {
       if (result?.error) {
         setError(result.error)
         setIsLoading(false)
+      } else if (result?.success) {
+        // Force a full browser refresh to ensure session cookies are recognized on production Vercel
+        window.location.href = "/dashboard"
+      } else {
+        window.location.href = "/dashboard"
       }
-      // If no error, we expect a redirect to happen
     } catch (err) {
       console.error("Login component error:", err)
+      setError("An unexpected error occurred. Please try again.")
       setIsLoading(false)
     }
-      
   }
 
   return (
