@@ -43,10 +43,13 @@ export function LoginForm() {
       console.error("Login component error:", err)
       setIsLoading(false)
     }
+      
   }
 
   return (
-    <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
+    
+    <Card className="border-non
+    e shadow-lg bg-card/50 backdrop-blur-sm">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold">Login</CardTitle>
         <CardDescription>
@@ -100,4 +103,5 @@ export function LoginForm() {
       </CardFooter>
     </Card>
   )
+  
 }
