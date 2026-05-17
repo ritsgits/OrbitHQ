@@ -7,6 +7,7 @@ import WorkspaceMember from "@/models/WorkspaceMember";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { logActivity } from "@/lib/activity";
+import mongoose from "mongoose";
 
 const TaskSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
@@ -25,7 +26,9 @@ const checkTaskPermissions = cache(async () => {
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   await connectDB();
-  const membership = await WorkspaceMember.findOne({ userId: session.user.id }).lean();
+  const membership = await WorkspaceMember.findOne({ 
+    userId: new mongoose.Types.ObjectId(session.user.id) 
+  }).lean();
   if (!membership) throw new Error("No workspace membership found");
 
   return { 

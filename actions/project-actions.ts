@@ -25,7 +25,9 @@ const checkProjectPermissions = cache(async () => {
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   await connectDB();
-  const membership = await WorkspaceMember.findOne({ userId: session.user.id }).lean();
+  const membership = await WorkspaceMember.findOne({ 
+    userId: new mongoose.Types.ObjectId(session.user.id) 
+  }).lean();
   if (!membership) throw new Error("No workspace membership found");
 
   const canManage = membership.role === "OWNER" || membership.role === "ADMIN";

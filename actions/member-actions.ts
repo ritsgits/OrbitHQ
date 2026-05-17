@@ -5,6 +5,7 @@ import connectDB from "@/lib/db";
 import WorkspaceMember from "@/models/WorkspaceMember";
 import User from "@/models/User";
 import { logActivity } from "@/lib/activity";
+import mongoose from "mongoose";
 
 import { revalidatePath } from "next/cache";
 
@@ -14,7 +15,9 @@ export async function getWorkspaceMembers() {
     if (!session?.user?.id) throw new Error("Unauthorized");
 
     await connectDB();
-    const currentMember = await WorkspaceMember.findOne({ userId: session.user.id });
+    const currentMember = await WorkspaceMember.findOne({ 
+      userId: new mongoose.Types.ObjectId(session.user.id) 
+    });
     if (!currentMember) throw new Error("No workspace membership found");
 
     const members = await WorkspaceMember.find({ 
@@ -33,7 +36,9 @@ export async function inviteMember(email: string, role: "ADMIN" | "MEMBER") {
     if (!session?.user?.id) throw new Error("Unauthorized");
 
     await connectDB();
-    const currentMember = await WorkspaceMember.findOne({ userId: session.user.id });
+    const currentMember = await WorkspaceMember.findOne({ 
+      userId: new mongoose.Types.ObjectId(session.user.id) 
+    });
     if (!currentMember) throw new Error("No workspace membership found");
 
     if (currentMember.role === "MEMBER") {

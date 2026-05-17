@@ -25,12 +25,18 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
           
           const passwordsMatch = await bcrypt.compare(password, user.password);
 
-          if (passwordsMatch) return {
-            id: user._id.toString(),
-            name: user.name,
-            email: user.email,
-            role: user.role,
-          };
+          if (passwordsMatch) {
+            const WorkspaceMember = (await import("./models/WorkspaceMember")).default;
+            const membership = await WorkspaceMember.findOne({ userId: user._id });
+            const workspaceRole = membership ? membership.role : "MEMBER";
+
+            return {
+              id: user._id.toString(),
+              name: user.name,
+              email: user.email,
+              role: workspaceRole,
+            };
+          }
         }
 
         console.log("Invalid credentials");

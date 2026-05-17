@@ -19,7 +19,7 @@ export const authConfig = {
     jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = (user as any).role;
-        token.id = user.id;
+        token.id = user.id || (user as any)._id?.toString();
         token.name = user.name;
       }
       if (trigger === "update" && session?.name) {
@@ -29,8 +29,8 @@ export const authConfig = {
     },
     session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).role = token.role;
+        (session.user as any).id = token.id || token.sub;
+        (session.user as any).role = token.role || "MEMBER";
         session.user.name = token.name as string;
       }
       return session;

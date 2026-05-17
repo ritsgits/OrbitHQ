@@ -7,6 +7,7 @@ import WorkspaceMember from "@/models/WorkspaceMember";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { logActivity } from "@/lib/activity";
+import mongoose from "mongoose";
 
 const LeadSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -23,7 +24,9 @@ async function checkLeadPermissions() {
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   await connectDB();
-  const membership = await WorkspaceMember.findOne({ userId: session.user.id });
+  const membership = await WorkspaceMember.findOne({ 
+    userId: new mongoose.Types.ObjectId(session.user.id) 
+  });
   if (!membership) throw new Error("No workspace membership found");
 
   return { 

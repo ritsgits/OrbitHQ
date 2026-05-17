@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import connectDB from "./db";
 import WorkspaceMember from "@/models/WorkspaceMember";
 import Workspace from "@/models/Workspace";
+import mongoose from "mongoose";
 
 export async function getSession() {
   return await auth();
@@ -22,7 +23,9 @@ export async function getActiveWorkspace() {
   if (!user || !(user as any).id) return null;
 
   await connectDB();
-  const membership = await WorkspaceMember.findOne({ userId: (user as any).id }).populate('workspaceId');
+  const membership = await WorkspaceMember.findOne({ 
+    userId: new mongoose.Types.ObjectId((user as any).id) 
+  }).populate('workspaceId');
   
   if (!membership) return null;
   
@@ -38,7 +41,7 @@ export async function verifyWorkspaceAccess(workspaceId: string) {
 
   await connectDB();
   const membership = await WorkspaceMember.findOne({ 
-    userId: (user as any).id, 
+    userId: new mongoose.Types.ObjectId((user as any).id), 
     workspaceId 
   });
   
