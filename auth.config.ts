@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 
 export const authConfig = {
   trustHost: true,
+  secret: process.env.AUTH_SECRET,
   pages: {
     signIn: "/login",
   },
@@ -11,22 +12,8 @@ export const authConfig = {
     // This file is for middleware-compatible config
   ],
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      const isProtectedRoute = 
-        nextUrl.pathname.startsWith("/dashboard") ||
-        nextUrl.pathname.startsWith("/crm") ||
-        nextUrl.pathname.startsWith("/projects") ||
-        nextUrl.pathname.startsWith("/tasks") ||
-        nextUrl.pathname.startsWith("/team") ||
-        nextUrl.pathname.startsWith("/settings");
-
-      if (isProtectedRoute) {
-        if (isLoggedIn) return true;
-        return false; // Redirect unauthenticated users to login page
-      } else if (isLoggedIn && (nextUrl.pathname.startsWith("/login") || nextUrl.pathname.startsWith("/signup"))) {
-        return Response.redirect(new URL("/dashboard", nextUrl));
-      }
+    authorized() {
+      // Return true to disable default NextAuth redirects and let middleware.ts handle all route protection.
       return true;
     },
     jwt({ token, user, trigger, session }) {
